@@ -1,0 +1,14 @@
+v1.0.1
+
+* Fix get_quota_limit() syntax error in RandDotOrg
+
+* Add quota limit to RandDotOrg object and check against that limit
+
+* Edit debug logic to correctly identify actual API used, as well as API specified
+
+* Minor syntax corrections
+
+
+v1.0
+
+* Initial stable release

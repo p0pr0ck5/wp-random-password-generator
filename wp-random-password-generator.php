@@ -113,18 +113,19 @@ function wp_random_password_generator_generate() {
 	$response['debug'] = $opts['debug'];
 	$response['time']['begin'] = time();
 	$response['length'] = $len;
-	$response['api'] = $opts['random-api'] ? 'random.org' : 'wp_generate_password';
+	$response['api']['db'] = $opts['random-api'] ? 'random.org' : 'wp_generate_password';
 
 	if ( file_exists( plugin_dir_path( __FILE__ ) . 'inc/class-rand-dot-org.php' ) ) {
 		require( plugin_dir_path( __FILE__ ) . 'inc/class-rand-dot-org.php' );
-		$rand = new RandDotOrg( true, 'WPRandomPasswordGenerator' ); // use SSL, set the User Agent, and make sure we have 1000 bits of API quota
+		$rand = new RandDotOrg( true, 'WPRandomPasswordGenerator', 1000 ); // use SSL, set the User Agent, and make sure we have 1000 bits of API quota
 	}
 
 	// check if we should use the Random.org API
-	if ( true != $opts['random-api'] && isset( $rand ) && $rand->quota() > 0 ) {
+	if ( true == $opts['random-api'] && isset( $rand ) && $rand->quota() > $rand->get_quota_limit() ) {
 		try {
 			if ( $opts['debug'] ) {
 				$quota_before = $rand->quota();
+				$response['api']['used'] = 'random.org';
 			}
 			$response['status'] = 0;
 			$response['result'] = $rand->get_strings( 1, $len );
@@ -136,10 +137,13 @@ function wp_random_password_generator_generate() {
 			$response['result'] = $e->getMessage();
 		}
 	} else { // use the built-in pluggable wp_generate_password function instead
+		if ( $opts['debug'] ) {
+			$response['api']['used'] = 'wp_generate_password';
+		}
 		$args = array(
 			'length' => $len,
 			'special_chars' => true,
-			'extra_special_chars' => false
+			'extra_special_chars' => false,
 		);
 		$response['status'] = 0; // assume everything went well
 		$response['result'] = call_user_func_array( 'wp_generate_password', apply_filters( 'wp_password_generator_args', $args, $opts ) );

@@ -103,7 +103,7 @@ class RandDotOrg
 	 * @return int The API quota limit
 	 */
 	public function get_quota_limit() {
-		return $this->$quota_limit;
+		return $this->quota_limit;
 	}
 
 	/**
@@ -245,7 +245,7 @@ class RandDotOrg
 		}
 		$url .= "&" . self::global_params();
 
-			// if we're not making a free request, make sure we have available API quota
+		// if we're not making a free request, make sure we have available API quota
 		if( $type != 'quota' && $this->quota() < $this->quota_limit ) {
 			throw new Exception( 'Not enough quota available! Please wait a while before making additional requests.' );
 		}
@@ -301,7 +301,7 @@ class RandDotOrg
 	private static function query_string( $array ) {
 		$string = '';
 		foreach( $array as $key => $value ) {
-			if ( !is_array( $value ) ) {
+			if ( ! is_array( $value ) ) {
 				$string .= $key . '=' . $value . '&';
 			}
 		}
